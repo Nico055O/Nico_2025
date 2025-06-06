@@ -133,24 +133,25 @@ class GameLevelMC {
       sprite_data_creeper.playAnimation();
     }, 5000);
 
-    const sprite_src_villager = path + "/images/gamify/villager.png";
-const sprite_greet_villager = "Aur aur aur";
+    const sprite_src_Aether = path + "/images/gamify/Aether_Portal.png";
+const sprite_greet_Aether = "Aur aur aur";
 
-const sprite_data_villager = {
-  id: 'Villager',
-  greeting: sprite_greet_villager,
-  src: sprite_src_villager,
+const sprite_data_Aether = {
+  id: 'Aether Portal',
+  greeting: sprite_greet_Aether,
+  src: sprite_src_Aether,
   SCALE_FACTOR: 6,
   ANIMATION_RATE: 100,
-  pixels: { width: 700, height: 1400 },
+  pixels: { width: 150, height: 259 },
   INIT_POSITION: { x: (width * 10 / 11), y: (height * 1 / 40) },
   orientation: { rows: 1, columns: 1 },
   down: { row: 0, start: 0, columns: 1 },
   hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
 dialogues: [
               "Expolore the new terrain?",
-              "I love villager life!",
-              "Roblox is not better than Minecraft!",
+              "The Aether awaits you!",
+              "The Aether is a magical realm!",
+              "Aether in Minecraft!",
           ],
           reaction: function() {
               // Don't show any reaction dialogue - this prevents the first alert
@@ -169,15 +170,15 @@ dialogues: [
               
               // Show portal dialogue with buttons
               this.dialogueSystem.showDialogue(
-                  "Do you wish to explore the plains?",
-                  "Plains Biome?",
+                  "Do you wish to explore the Aether?",
+                  "Aether?",
                   this.spriteData.src
               );
               
               // Add buttons directly to the dialogue
               this.dialogueSystem.addButtons([
                   {
-                      text: "Mountainous Plains",
+                      text: "Aether",
                       primary: true,
                       action: () => {
                           this.dialogueSystem.closeDialogue();
@@ -267,7 +268,7 @@ dialogues: [
     this.classes = [
       { class: Background, data: image_data_main },
       { class: Player, data: sprite_data_player },
-      { class: Npc, data: sprite_data_villager },
+      { class: Npc, data: sprite_data_Aether },
       { class: Creeper, data: sprite_data_creeper },
     ];
   }
