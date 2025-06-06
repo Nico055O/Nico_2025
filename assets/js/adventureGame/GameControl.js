@@ -21,6 +21,7 @@ class GameControl {
         this.exitKeyListener = this.handleExitKey.bind(this);
         this.gameOver = null; // Callback for when the game is over 
         this.savedCanvasState = []; // Save the current levels game elements 
+        this.interactionHandlers = [];
     }
 
     
@@ -185,6 +186,22 @@ class GameControl {
         this.showCanvasState();
         this.gameLoop();
     }
+        
+
+    registerInteractionHandler(handler) {
+        this.interactionHandlers.push(handler);
+        console.log("Handler registered:", handler);
+    }
+
+    // Optional: method to call all handlers
+    callHandlers() {
+        this.interactionHandlers.forEach(handler => {
+            if (typeof handler.handleInteraction === 'function') {
+                handler.handleInteraction();
+            }
+        });
+    }
 }
+
 
 export default GameControl;

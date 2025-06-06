@@ -7,6 +7,7 @@ import GameControl from './GameControl.js';
 import GameLevelStarWars from './GameLevelStarWars.js';
 import GameLevelMC from './GameLevelMC.js';
 import DialogueSystem from './DialogueSystem.js';
+import GameLevelForest from './GameLevelForest.js';
 
 class GameLevelBasement {
   constructor(gameEnv) {
@@ -202,7 +203,28 @@ class GameLevelBasement {
         }
       },
       // Add more conversation nodes as needed
-    };
+    };// Conversation class for Asaka 
+class Conversation {
+  constructor(flow) {
+    this.flow = flow;
+    this.currentNode = "start";
+  }
+
+  getCurrentQuestion() {
+    return this.flow[this.currentNode].question;
+  }
+
+  getCurrentAnswers() {
+    return Object.keys(this.flow[this.currentNode].answers);
+  }
+
+  answerQuestion(answer) {
+    const nextNode = this.flow[this.currentNode].answers[answer];
+    if (nextNode) {
+      this.currentNode = nextNode;
+    }
+  }
+}
 
     // NPC data for Asaka
     const sprite_src_asaka = path + "/images/gamify/asaka.png"; // be sure to include the path
@@ -272,181 +294,158 @@ class GameLevelBasement {
           "Crypton Future Media later moved on from Vocaloid to develop Piapro Studio, which now powers Miku and other Crypton Vocaloids.",
           "Vocaloid has a wide range of characters, each with unique voices and personalities. The most famous ones include:",
           "Hatsune Miku The face of Vocaloid, known for her turquoise hair and futuristic style.",
-        ],
+        
+          ],
           reaction: function() {
-            // Use dialogue system instead of alert
-            if (this.dialogueSystem) {
-                this.showReactionDialogue();
-            } else {
-                console.log(sprite_greet_miku);
-            }
-        },
-        interact: function() {
-            // Show random dialogue message
-            if (this.dialogueSystem) {
-                this.showRandomDialogue();
-            }
-        }
-    };
-    sprite_data_miku.dialogueSystem = new DialogueSystem({
-  id: 'miku_npc',
-  dialogues: sprite_data_miku.dialogues,
-  enableSound: true,
-  // soundUrl: './sounds/miku-dialogue.mp3' // customize if desired
-});
-sprite_data_miku.showReactionDialogue = function() {
-  this.dialogueSystem.showDialogue(this.greeting, "Miku", this.src);
-};
-
-sprite_data_miku.showRandomDialogue = function() {
-  this.dialogueSystem.showRandomDialogue("Miku", this.src);
-};
-
-const sprite_src_nezuko = path + "/images/gamify/nezuko.png"; // be sure to include the path
-const sprite_greet_nezuko = "IM CRASHING OUTTTTTT OF THIS GAME!!";
-const sprite_data_nezuko = {
-  id: 'Nezuko',
-  greeting: sprite_greet_nezuko,
-  src: sprite_src_nezuko,
-  SCALE_FACTOR: 5,
-  ANIMATION_RATE: 50,
-  pixels: { height: 316, width: 189 },
-  INIT_POSITION: { x: (width / 1.3), y: (height / 1.3) },
-  orientation: { rows: 4, columns: 3 },
-  down: { row: 0, start: 0, columns: 3 },
-  hitbox: { widthPercentage: 1, heightPercentage: 1 },
-
-  reaction: function () {
-    // Pause the primary game
-    let primaryGame = gameEnv.gameControl;
-    primaryGame.pause();
-
-    // Create and style the fade overlay
-    const fadeOverlay = document.createElement('div');
-    Object.assign(fadeOverlay.style, {
-      position: 'absolute',
-      top: '0px',
-      left: '0px',
-      width: width + 'px',
-      height: height + 'px',
-      backgroundColor: '#0a0a1a',
-      opacity: '0',
-      transition: 'opacity 1s ease-in-out',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'column',
-      fontFamily: "'Orbitron', sans-serif",
-      color: 'white',
-      fontSize: '18px',
-      zIndex: '9999'
-    });
-
-    const loadingText = document.createElement('div');
-    loadingText.textContent = 'Loading...';
-    fadeOverlay.appendChild(loadingText);
-
-    const loadingBar = document.createElement('div');
-    loadingBar.style.marginTop = '10px';
-    loadingBar.style.fontFamily = 'monospace';
-    loadingBar.textContent = '';
-    fadeOverlay.appendChild(loadingBar);
-
-    document.body.appendChild(fadeOverlay);
-
-    // Fade in
-    requestAnimationFrame(() => {
-      fadeOverlay.style.opacity = '1';
-    });
-
-    // Simulate loading bar
-    const totalDuration = 1000; // 1 second
-    const interval = 100;
-    const totalSteps = totalDuration / interval;
-    let currentStep = 0;
-
-    const loadingInterval = setInterval(() => {
-      currentStep++;
-      loadingBar.textContent += '|';
-      if (currentStep >= totalSteps) {
-        clearInterval(loadingInterval);
+              // Don't show any reaction dialogue - this prevents the first alert
+              // The interact function will handle all dialogue instead
+          },
+          interact: function() {
+              // Clear any existing dialogue first to prevent duplicates
+              if (this.dialogueSystem && this.dialogueSystem.isDialogueOpen()) {
+                  this.dialogueSystem.closeDialogue();
+              }
+              
+              // Create a new dialogue system if needed
+              if (!this.dialogueSystem) {
+                  this.dialogueSystem = new DialogueSystem();
+              }
+              
+              // Show portal dialogue with buttons
+              this.dialogueSystem.showDialogue(
+                  "Why do you want to leave me?",
+                  "Escape to the forest",
+                  this.spriteData.src
+              );
+              
+              // Add buttons directly to the dialogue
+              this.dialogueSystem.addButtons([
+                  {
+                      text: "Escape",
+                      primary: true,
+                      action: () => {
+                          this.dialogueSystem.closeDialogue();
+                          
+                          // Clean up the current game state
+                          if (gameEnv && gameEnv.gameControl) {
+                              // Store reference to the current game control
+                              const gameControl = gameEnv.gameControl;
+                              
+                              // Create fade overlay for transition
+                              const fadeOverlay = document.createElement('div');
+                              Object.assign(fadeOverlay.style, {
+                                  position: 'fixed',
+                                  top: '0',
+                                  left: '0',
+                                  width: '100%',
+                                  height: '100%',
+                                  backgroundColor: '#000',
+                                  opacity: '0',
+                                  transition: 'opacity 1s ease-in-out',
+                                  zIndex: '9999'
+                              });
+                              document.body.appendChild(fadeOverlay);
+                              
+                              console.log("You leave Miku behind, ready to escape the basement.");
+                              
+                              // Fade in
+                              requestAnimationFrame(() => {
+                                  fadeOverlay.style.opacity = '1';
+                                  
+                                  // After fade in, transition to End level
+                                  setTimeout(() => {
+                                      // Clean up current level properly
+                                      if (gameControl.currentLevel) {
+                                          // Properly destroy the current level
+                                          console.log("Destroying current level...");
+                                          gameControl.currentLevel.destroy();
+                                          
+                                          // Force cleanup of any remaining canvases
+                                          const gameContainer = document.getElementById('gameContainer');
+                                          const oldCanvases = gameContainer.querySelectorAll('canvas:not(#gameCanvas)');
+                                          oldCanvases.forEach(canvas => {
+                                              console.log("Removing old canvas:", canvas.id);
+                                              canvas.parentNode.removeChild(canvas);
+                                          });
+                                      }
+                                      
+                                      console.log("To the forest...");
+                                      
+                                      // IMPORTANT: Store the original level classes for return journey
+                                      gameControl._originalLevelClasses = gameControl.levelClasses;
+                                      
+                                      
+                                      gameControl.levelClasses = [GameLevelForest];
+                                      gameControl.currentLevelIndex = 0;
+                                      
+                                      // Make sure game is not paused
+                                      gameControl.isPaused = false;
+                                      
+                                      // Start the End level with the same control
+                                      console.log("To the forest...");
+                                      gameControl.transitionToLevel();
+                                      
+                                      // Fade out overlay
+                                      setTimeout(() => {
+                                          fadeOverlay.style.opacity = '0';
+                                          setTimeout(() => {
+                                              document.body.removeChild(fadeOverlay);
+                                          }, 1000);
+                                      }, 500);
+                                  }, 1000);
+                              });
+                          }
+                      }
+                  },
+                  {
+                      text: "Not Ready",
+                      action: () => {
+                          this.dialogueSystem.closeDialogue();
+                      }
+                  }
+              ]);
+          }
       }
-    }, interval);
 
-    // After loading and fade-in, redirect to new level
-    setTimeout(() => {
-      window.location.href = "GameLevelBasement.html"; // replace with actual level file path
-    }, totalDuration + 200); // small delay after loading
-  },
-
-  interact: function () {
-    // Keep original game-in-game functionality if you want this as backup
-    let primaryGame = gameEnv.gameControl;
-    let levelArray = [GameLevelMC];
-    let gameInGame = new GameControl(gameEnv.game, levelArray);
-    primaryGame.pause();
-
-    const fadeOverlay = document.createElement('div');
-    Object.assign(fadeOverlay.style, {
-      position: 'absolute',
-      top: '0px',
-      left: '0px',
-      width: width + 'px',
-      height: height + 'px',
-      backgroundColor: '#0a0a1a',
-      opacity: '0',
-      transition: 'opacity 1s ease-in-out',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'column',
-      fontFamily: "'Orbitron', sans-serif",
-      color: 'white',
-      fontSize: '18px',
-      zIndex: '9999'
-    });
-
-    const loadingText = document.createElement('div');
-    loadingText.textContent = 'Loading...';
-    fadeOverlay.appendChild(loadingText);
-
-    const loadingBar = document.createElement('div');
-    loadingBar.style.marginTop = '10px';
-    loadingBar.style.fontFamily = 'monospace';
-    loadingBar.textContent = '';
-    fadeOverlay.appendChild(loadingBar);
-
-    document.body.appendChild(fadeOverlay);
-
-    requestAnimationFrame(() => {
-      fadeOverlay.style.opacity = '1';
-    });
-
-    const totalDuration = 1000;
-    const interval = 100;
-    const totalSteps = totalDuration / interval;
-    let currentStep = 0;
-
-    const loadingInterval = setInterval(() => {
-      currentStep++;
-      loadingBar.textContent += '|';
-      if (currentStep >= totalSteps) {
-        clearInterval(loadingInterval);
-      }
-    }, interval);
-
-    setTimeout(() => {
-      gameInGame.start();
-      gameInGame.gameOver = function () {
-        primaryGame.resume();
+      // Nezuko NPC sprite data
+  const sprite_src_nezuko = path + "/images/gamify/nezuko.png"; // be sure to include the path
+  const sprite_greet_nezuko = "I've never seen you before. Are you lost? Well, even if you are.. I don't think I'm going to help you get out of here."
+  const sprite_data_nezuko = {
+    id: 'Nezuko',
+    greeting: sprite_greet_nezuko,
+    src: sprite_src_nezuko,
+    SCALE_FACTOR: 5,
+    ANIMATION_RATE: 50,
+    pixels: {height: 316, width: 189},
+    INIT_POSITION: { x: (width / 1.3), y: (height / 1.3)},
+    orientation: {rows: 4, columns: 3 },
+    down: {row: 0, start: 0, columns: 3 },
+    hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+    dialogues: [
+      "Hi there! I'm Nezuko, your virtual demon! 🐾✨",
+      "I was created by the talented team at Open Coding Society to bring a unique gaming experience to life.",
+      "My character is inspired by the popular anime series 'Demon Slayer', where I play the role of a demon with a strong will and protective instincts.",
+      "In the game, I can help you navigate through challenges and provide hints to overcome obstacles.",
+      "My abilities include enhanced strength, agility, and the power to heal quickly.",
+      "I can also assist you in battles against other demons and enemies you encounter.",
+      "Remember, teamwork is key! Together, we can conquer any challenge that comes our way.",
+      "Let's embark on this adventure together and make it an unforgettable experience!"
+    ],
+          reaction: function() {
+              // Use dialogue system instead of alert
+              if (this.dialogueSystem) {
+                  this.showReactionDialogue();
+              } else {
+                  console.log(sprite_greet_nezuko);
+              }
+          },
+          interact: function() {
+              // Show random dialogue message
+              if (this.dialogueSystem) {
+                  this.showRandomDialogue();
+              }
+          }
       };
-      fadeOverlay.style.opacity = '0';
-      setTimeout(() => {
-        document.body.removeChild(fadeOverlay);
-      }, 1000);
-    }, totalDuration + 200);
-  }
-};
 
 
     // Store all NPC sprite data in an array
@@ -464,29 +463,6 @@ const sprite_data_nezuko = {
       { class: Npc, data: sprite_data_asaka },
       { class: Npc, data: sprite_data_miku },
     ];
-  }
-}
-
-// Conversation class for Asaka 
-class Conversation {
-  constructor(flow) {
-    this.flow = flow;
-    this.currentNode = "start";
-  }
-
-  getCurrentQuestion() {
-    return this.flow[this.currentNode].question;
-  }
-
-  getCurrentAnswers() {
-    return Object.keys(this.flow[this.currentNode].answers);
-  }
-
-  answerQuestion(answer) {
-    const nextNode = this.flow[this.currentNode].answers[answer];
-    if (nextNode) {
-      this.currentNode = nextNode;
-    }
   }
 }
 
