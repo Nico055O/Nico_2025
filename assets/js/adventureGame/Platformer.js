@@ -30,7 +30,7 @@ const sprite_data_player = {
   left: { row: 1, start: 0, columns: 3 },
   right: { row: 2, start: 0, columns: 3 },
   up: { row: 3, start: 0, columns: 3 },
-  hitbox: { widthPercentage: 0.65, heightPercentage: 0.3 },
+  hitbox: { widthPercentage: 0.87, heightPercentage: 0.96},
   keypress: { up: 87, left: 65, down: 83, right: 68 }
 };
 
@@ -287,6 +287,8 @@ function draw() {
     );
     ctx.restore();
   } else {
+    let spriteYoffset = 27;
+
     ctx.drawImage(
       playerImage,
       player.frameX * frameWidth,
@@ -294,7 +296,7 @@ function draw() {
       frameWidth,
       frameHeight,
       player.x,
-      player.y,
+      player.y + spriteYoffset, // Adjust Y position for sprite
       player.width,
       player.height
     );

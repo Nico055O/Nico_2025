@@ -68,7 +68,7 @@ class Game {
                 <h3 style="color: #f5c207;">Controls:</h3>
                 <p>• WASD - Move</p>
                 <p>• E - Interact with NPCs</p>
-                <p>• ESC - Explore a new world</p>
+                <p>• ESC - Explore the world of MINECRAFT</p>
             </div>
             <div style="margin-bottom: 15px;">
                 <h3 style="color: #f5c207;">Featuring NPC interactions such as...</h3>
